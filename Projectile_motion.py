@@ -17,13 +17,21 @@ def distance(a, B, V, t=8):
     distance = (sol.y[0][pos_idx] + sol.y[0][neg_idx]) / 2
     return distance
 
+def angle(x, y):
+    gradient = np.gradient(y, x)
+    pos_idx = np.where(np.diff(np.sign(gradient)) < 0)[0][0]
+    neg_idx = pos_idx + 1
+    opt_angle = (x[pos_idx] + x[neg_idx]) / 2
+    return opt_angle
+
+
 #define variables
 rho = 1.225
 Cd = 0.47 #approximate value only 
 r = 0.025
 A = np.pi * (r**2)
 b = 0.5 * rho * Cd * A
-m = 2
+m = 0.045
 B = b / m
 V = 60
 g = 9.80665
@@ -46,6 +54,18 @@ plt.plot(x1, y1)
 plt.ylim(bottom = 0)
 plt.xlabel("Distance /m")
 plt.ylabel("Height /m")
-plt.text(240, 70, f'Max distance: {max_distance}')
+plt.text(0.95, 0.95, f'Max distance: {max_distance}', transform=plt.gca().transAxes, verticalalignment="top", horizontalalignment="right")
+
+# Max distance against lauch angle graph
+angles_deg = np.linspace(30, 60, 1000)
+angles = angles_deg * np.pi / 180
+distances = np.vectorize(distance)(angles, B, V)
+opt_angle = round(angle(angles_deg, distances), 2)
+
+plt.figure(2)
+plt.plot(angles_deg, distances)
+plt.xlabel("Angle /degrees")
+plt.ylabel("Maximum distance /m")
+plt.text(0.95, 0.95, f'Optimal angle: {opt_angle}', transform=plt.gca().transAxes, verticalalignment="top", horizontalalignment="right")
 
 plt.show()
